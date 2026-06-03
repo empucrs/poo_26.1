@@ -128,4 +128,38 @@ mvn spring-boot:run
 \`\`\`
 EOF
 
+# .gitignore
+cat > "$BASE_DIR/.gitignore" << 'EOF'
+# Arquivos de Build
+/target/
+/build/
+.gradle/
+/frontend/
+
+# IDEs e Editores
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# Configurações e Módulos do Front-end
+node_modules/
+pnpm-lock.yaml
+pnpmfile.js
+package-lock.json
+package.json
+
+# Arquivos Gerados pelo Vaadin
+vite.generated.ts
+frontend/generated/
+webpack.generated.js
+webpack.config.js
+
+# Sistemas Operacionais
+.DS_Store
+Thumbs.db
+EOF
+
 echo "Projeto '$ARTIFACT_ID' criado com sucesso com Vaadin + Spring Boot e Java 21."
