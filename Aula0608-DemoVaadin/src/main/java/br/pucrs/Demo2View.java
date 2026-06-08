@@ -1,4 +1,4 @@
-package aagustini.poo;
+package br.pucrs;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

@@ -1,10 +1,10 @@
-package aagustini.poo;
+package br.pucrs;
 
-import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -15,15 +15,16 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@PageTitle("Demo 4 - Cadastro de pessoas - Edição")
-@Route("demo4")
-public class Demo4View extends VerticalLayout {
+@PageTitle("Demo 3 - Cadastro de pessoas - Inserção")
+@Route("demo3")
+public class Demo3View extends VerticalLayout {
     // Instância do cadastro de pessoas
     private final CadastroPessoas cadPessoas;
     // Campos do formulário
@@ -31,24 +32,20 @@ public class Demo4View extends VerticalLayout {
     private final TextField email;
     private final DatePicker dataNascimento;
     private final ComboBox<String> pais;
-    // Botoes
-    private final Button salvarButton;
-    private final Button cancelarButton;
+    private final Checkbox aceitaTermos;
     // Grid para exibir as pessoas
     private final Grid<Pessoa> grid;
-    // Referencia para a pessoa selecionada
-    Pessoa pessoaSelecionada;
 
-    public Demo4View() {
+    public Demo3View() {
         // Inicializando o cadastro de pessoal
         cadPessoas = CadastroPessoas.getInstance();
         // inicializando os campos do formulário
         nome = new TextField("Nome");
-        nome.setReadOnly(true); // O nome não pode ser atualizado
         email = new TextField("EMail");
         dataNascimento = new DatePicker("Data de Nascimento");
         pais = new ComboBox<>("País");
         pais.setItems("Brasil", "Portugal", "EUA", "Inglaterra");
+        aceitaTermos = new Checkbox("Aceito os termos de serviço");
         // inicializando o Grid para exibir as pessoas
         grid = new Grid<>(Pessoa.class);
 
@@ -57,105 +54,63 @@ public class Demo4View extends VerticalLayout {
         setPadding(true);
 
         // Define título do formulário
-        add(new H2("Demo 4 - Cadastro de pessoas - Edição"));
+        add(new H2("Demo 3 - Cadastro de pessoas - INSERÇÃO"));
 
         // Configuração do formulário
-        FormLayout formLayout = new FormLayout(nome, email, dataNascimento, pais);
+        FormLayout formLayout = new FormLayout(nome, email, dataNascimento, pais, aceitaTermos);
 
         // Definição dos botões de ação
-        salvarButton = new Button("Atualizar", VaadinIcon.CHECK.create());
+        Button salvarButton = new Button("Inserir", VaadinIcon.CHECK.create());
         salvarButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         salvarButton.addClickShortcut(Key.ENTER);
-        salvarButton.addClickListener(click -> this.atualizarFormulario());
+        salvarButton.addClickListener(click -> this.inserirFormulario());
 
-        cancelarButton = new Button("Cancelar");
+        Button cancelarButton = new Button("Cancelar");
         Dialog dialogoCancelamento = criaDialogoDeCancelamento();
         cancelarButton.addClickListener(click -> dialogoCancelamento.open());
 
         // Adiciona botoes de ação em um layout horizontal
         HorizontalLayout botoesLayout = new HorizontalLayout(salvarButton, cancelarButton);
 
-        // Configuração do Grid
+        // Configuração da Grid
         grid.setItems(cadPessoas.getLista());
         grid.setColumns("nome", "email", "pais", "dataNascimento");
-        grid.asSingleSelect().addValueChangeListener(event -> preparaEdicaoPessoa(event));
 
         // Monta todos os elementos na janela
         add(formLayout, botoesLayout, new H2("Usuários Cadastrados"), grid);
         add(new Hr());
-
+        
         // Define o botão de retorno à página principal
         Button backButton = new Button("Voltar");
         backButton.addClickListener(e -> UI.getCurrent().navigate("hello"));
         add(backButton);
-
-        // deixa formulário desabilitado no início
-        habilitarFormulario(false);
-
     }
 
-    // Atualiza a pessoa selecionada
-    private void atualizarFormulario() {
-        Pessoa p = new Pessoa(nome.getValue(),
-                email.getValue(),
-                pais.getValue(),
-                dataNascimento.getValue());
+    private void inserirFormulario() {
+        if (aceitaTermos.getValue() == false) {
+            Notification.show("Você precisa aceitar os termos de serviço.", 3000, Notification.Position.TOP_CENTER)
+                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
+        } else {
+            Pessoa p = new Pessoa(nome.getValue(),
+                    email.getValue(),
+                    pais.getValue(),
+                    dataNascimento.getValue());
+            cadPessoas.cadastrar(p);
 
-        cadPessoas.update(pessoaSelecionada.getID(), p);
+            String mensagem = "Usuário " + p.getNome() + " salvo com sucesso!";
+            Notification.show(mensagem, 3000, Notification.Position.BOTTOM_STRETCH);
 
-        String mensagem = "Usuário " + p.getNome() + " atualizado com sucesso!";
-        Notification.show(mensagem, 3000, Notification.Position.BOTTOM_STRETCH);
-
-        grid.getDataProvider().refreshAll();
-        limparFormulario();
-        habilitarFormulario(false); // Desabilita o form após salvar
-    }
-
-    // Preenche o formulário a partir do grid
-    private void preencherFormulario(Pessoa pessoa) {
-        nome.setValue(pessoa.getNome());
-        email.setValue(pessoa.getEmail());
-        dataNascimento.setValue(pessoa.getDataNascimento());
-        pais.setValue(pessoa.getPais());
-    }
-
-    // Habilitar/desabilitar os campos do formulário
-    private void habilitarFormulario(boolean opcao) {
-        // 'nome' é readonly, então não mexemos no 'enabled' dele
-        email.setEnabled(opcao);
-        dataNascimento.setEnabled(opcao);
-        pais.setEnabled(opcao);
-        salvarButton.setEnabled(opcao);
-        cancelarButton.setEnabled(opcao);
-    }
-
-    private void preparaEdicaoPessoa(ComponentValueChangeEvent<Grid<Pessoa>, Pessoa> event) {
-        {
-            pessoaSelecionada = event.getValue();
-
-            if (pessoaSelecionada != null) {
-                // Se uma pessoa foi selecionada, preenche o formulário
-                preencherFormulario(pessoaSelecionada);
-                habilitarFormulario(true);
-            } else {
-                // Se a seleção foi limpa, limpa o formulário
-                limparFormulario();
-                habilitarFormulario(false);
-            }
+            grid.getDataProvider().refreshAll();
+            limparFormulario();
         }
     }
 
-    // Limpa seleção do grid
     private void limparFormulario() {
-        // Desseleciona qualquer item na grid (isso evita loops de eventos)
-        grid.asSingleSelect().clear();
-        // Limpa os campos
         nome.clear();
         dataNascimento.clear();
         pais.clear();
         email.clear();
-        // Coloca o foco no campo nome
-        nome.focus();
+        nome.focus(); // Coloca o foco no campo nome
     }
 
     private Dialog criaDialogoDeCancelamento() {

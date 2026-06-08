@@ -4,15 +4,15 @@
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>aagustini.poo</groupId>
-  <artifactId>Aula0603-DEMOVAADIN</artifactId>
+  <groupId>br.pucrs</groupId>
+  <artifactId>Aula0608-DemoVaadin</artifactId>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
     <java.version>21</java.version>
     <vaadin.version>24.3.7</vaadin.version>
-    <spring-boot.version>3.5.6</spring-boot.version>
+    <spring-boot.version>3.2.5</spring-boot.version>
   </properties>
 
   <dependencyManagement>

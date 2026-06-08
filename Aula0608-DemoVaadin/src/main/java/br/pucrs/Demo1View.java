@@ -1,4 +1,4 @@
-package aagustini.poo;
+package br.pucrs;
 
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
