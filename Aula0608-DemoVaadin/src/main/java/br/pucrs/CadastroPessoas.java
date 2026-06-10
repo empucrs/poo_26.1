@@ -51,4 +51,13 @@ public class CadastroPessoas {
             p.setPais(upd.getPais());
         }
     }
+
+    public void eliminar(Pessoa p){
+        if ( p != null ) {
+            lista = new ArrayList<>( lista.stream()
+                        .filter( a -> a.getID() != p.getID())
+                        .toList());
+        }
+
+    }
 }
